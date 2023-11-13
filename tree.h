@@ -5,17 +5,17 @@
 
 #include "errors.h"
 
-typedef int node_t;
+typedef char* node_data_t;
 #ifdef PRINT_NODE
 #undef PRINT_NODE
 #endif
-#define PRINT_NODE " %d "
+#define PRINT_NODE "\"%s\""
 
-static const node_t ROOT_DATA = 10;
+static const node_data_t ROOT_DATA = "unknown";
 
 struct Node
 {
-    node_t data;
+    node_data_t data;
 
     Node* left;
     Node* right;
@@ -63,8 +63,10 @@ int PrintTreeError(FILE* fp, const void* err, const char* func, const char* file
                                                 }                                                       \
                                             } while(0)
 
-Node* NodeCtor(node_t data, Node* left, Node* right, error_t* error);
+Node* NodeCtor(node_data_t data, Node* left, Node* right, error_t* error);
 void  NodeDtor(Node* node);
+
+node_data_t ReadNodeData(FILE* fp, error_t* error);
 
 TreeErrors TreeCtor(tree_t* tree, error_t* error);
 void       TreeDtor(tree_t* tree);

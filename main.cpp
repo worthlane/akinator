@@ -1,4 +1,5 @@
 #include "tree.h"
+#include "akinator.h"
 
 static const char* INPUT_FILE = "data.txt";
 
@@ -22,7 +23,9 @@ int main(const int argc, const char* argv[])
     TreePrefixRead(fp, &tree, &error);
     EXIT_IF_TREE_ERROR(&error);
 
-    TreePrefixPrint(stdout, &tree);
+    GuessMode(&tree, tree.root, INPUT_FILE, &error);
+    EXIT_IF_TREE_ERROR(&error);
+
     DUMP_TREE(&tree);
 
     TreeDtor(&tree);

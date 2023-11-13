@@ -4,6 +4,7 @@
 
 #include "tree.h"
 #include "graphs.h"
+#include "input_and_output.h"
 
 static void DestructNodes(Node* root);
 
@@ -13,8 +14,10 @@ static void NodesInfixPrint(FILE* fp, const Node* node);
 
 static Node* NodesPrefixRead(FILE* fp, error_t* error);
 
-static inline void SkipSpaces(FILE* fp);
-static inline void ParseClosingBracket(FILE* fp, char* read);
+static inline void DeleteClosingBracketFromWord(FILE* fp, char* read);
+static TreeErrors CheckQuotatationMark(FILE* fp, error_t* error);
+static TreeErrors ReadTextInQuotes(FILE* fp, char* data, error_t* error);
+
 static Node* ReadNewNode(FILE* fp, error_t* error);
 
 static void TextTreeDump(FILE* fp, const tree_t* tree);
@@ -27,12 +30,11 @@ static inline void DrawNodes(FILE* dotf, const Node* node, const int rank);
 
 // =========================
 
-static const char*  NIL               = "nil";
-static const size_t MAX_LISP_WORD_LEN = 10;
+static const char* NIL = "nil";
 
 //-----------------------------------------------------------------------------------------------------
 
-Node* NodeCtor(node_t data, Node* left, Node* right, error_t* error)
+Node* NodeCtor(node_data_t data, Node* left, Node* right, error_t* error)
 {
     assert(error);
 
@@ -220,43 +222,40 @@ void TreePrefixRead(FILE* fp, tree_t* tree, error_t* error)
 
 //-----------------------------------------------------------------------------------------------------
 
-static inline void SkipSpaces(FILE* fp)
-{
-    char ch = 0;
-    ch = getc(fp);
-
-    while (isspace(ch))
-        ch = getc(fp);
-
-    ungetc(ch, fp);
-}
-
-//-----------------------------------------------------------------------------------------------------
-
 static Node* NodesPrefixRead(FILE* fp, error_t* error)
 {
     assert(error);
 
     SkipSpaces(fp);
-    char bracket_check = 0;
-    bracket_check = getc(fp);
+    char opening_bracket_check = 0;
+    opening_bracket_check = getc(fp);
     SkipSpaces(fp);
 
-    if (bracket_check == '(')
+    if (opening_bracket_check == '(')
     {
-        Node*  new_node = ReadNewNode(fp, error);
+        Node* new_node = ReadNewNode(fp, error);
+
+        SkipSpaces(fp);
+
+        char closing_bracket_check = getc(fp);
+        if (closing_bracket_check != ')')
+        {
+            error->code = (int) TreeErrors::INVALID_SYNTAX;
+            return nullptr;
+        }
+
         return new_node;
     }
     else
     {
-        ungetc(bracket_check, fp);
+        ungetc(opening_bracket_check, fp);
 
-        char read[MAX_LISP_WORD_LEN] = {};
+        char read[MAX_STRING_LEN] = {};
         fscanf(fp, "%s", read);
 
-        ParseClosingBracket(fp, read);
+        DeleteClosingBracketFromWord(fp, read);
 
-        if (strncmp(read, "nil", MAX_LISP_WORD_LEN))
+        if (strncmp(read, "nil", MAX_STRING_LEN))
             error->code = (int) TreeErrors::INVALID_SYNTAX;
     }
 
@@ -269,28 +268,95 @@ static Node* ReadNewNode(FILE* fp, error_t* error)
 {
     Node* node = NodeCtor(0, 0, 0, error);
 
-    int data = 0;
-    fscanf(fp, "%d", &data);
+    node_data_t data = ReadNodeData(fp, error);
+    if (error->code != (int) TreeErrors::NONE)
+        return nullptr;
 
-    node->data = data;
+    node->data  = data;
     node->left  = NodesPrefixRead(fp, error);
     node->right = NodesPrefixRead(fp, error);
-
-    SkipSpaces(fp);
-
-    char bracket_check = getc(fp);
-    if (bracket_check != ')')
-    {
-        error->code = (int) TreeErrors::INVALID_SYNTAX;
-        return nullptr;
-    }
 
     return node;
 }
 
 //-----------------------------------------------------------------------------------------------------
 
-static inline void ParseClosingBracket(FILE* fp, char* read)
+node_data_t ReadNodeData(FILE* fp, error_t* error)
+{
+    assert(error);
+
+    node_data_t data = (node_data_t) calloc(MAX_STRING_LEN, sizeof(char));
+    if (data == nullptr)
+    {
+        error->code = (int) TreeErrors::ALLOCATE_MEMORY;
+        return nullptr;
+    }
+
+    ReadTextInQuotes(fp, data, error);
+    if (error->code != (int) TreeErrors::NONE)
+        return nullptr;
+
+    return data;
+}
+
+//-----------------------------------------------------------------------------------------------------
+
+static TreeErrors ReadTextInQuotes(FILE* fp, char* data, error_t* error)
+{
+    assert(data);
+    assert(error);
+
+    CheckQuotatationMark(fp, error);
+    RETURN_IF_TREE_ERROR((TreeErrors) error->code);
+
+    bool have_closing_quote_mark = false;
+
+    for (size_t i = 0; i < MAX_STRING_LEN; i++)
+    {
+        char ch = getc(fp);
+
+        if (ch == EOF)
+            break;
+
+        if (ch == '"')
+        {
+            data[i] = 0;
+            have_closing_quote_mark = true;
+            break;
+        }
+        else
+            data[i] = ch;
+    }
+
+    if (!have_closing_quote_mark)
+    {
+        error->code = (int) TreeErrors::INVALID_SYNTAX;
+        return TreeErrors::INVALID_SYNTAX;
+    }
+
+    return TreeErrors::NONE;
+}
+
+//-----------------------------------------------------------------------------------------------------
+
+static TreeErrors CheckQuotatationMark(FILE* fp, error_t* error)
+{
+    assert(error);
+
+    char mark = getc(fp);
+
+    if (mark != '"')
+    {
+        error->code = (int) TreeErrors::INVALID_SYNTAX;
+        return TreeErrors::INVALID_SYNTAX;
+    }
+
+    return TreeErrors::NONE;
+}
+
+//-----------------------------------------------------------------------------------------------------
+
+static inline void DeleteClosingBracketFromWord(FILE* fp, char* read)
 {
     assert(read);
 
@@ -361,17 +427,17 @@ static inline void DrawNodes(FILE* dotf, const Node* node, const int rank)
     if (!node) return;
 
     fprintf(dotf, "%lld [shape=Mrecord, style=filled, fillcolor=\"lightblue\", color = darkblue, rank = %d, label=\" "
-                  "{ node: %p | data: " PRINT_NODE " | { left: %p| right: %p } }\"]\n",
+                  "{ node: %p | data: %s | { left: %p| right: %p } }\"]\n",
                   node, rank, node, node->data, node->left, node->right);
 
     DrawNodes(dotf, node->left, rank + 1);
     DrawNodes(dotf, node->right, rank + 1);
 
     if (node->left != nullptr)
-        fprintf(dotf, "%lld->%lld\n", node, node->left);
+        fprintf(dotf, "%lld->%lld [fontcolor = black, label = \"yes\"]\n", node, node->left);
 
     if (node->right != nullptr)
-        fprintf(dotf, "%lld->%lld\n", node, node->right);
+        fprintf(dotf, "%lld->%lld [fontcolor = black, label = \"no\"]\n", node, node->right);
 
 }
 

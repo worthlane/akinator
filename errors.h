@@ -66,8 +66,6 @@ enum class ERRORS
 
     USER_QUIT,
 
-    INVALID_LIST,
-
     /// unknown error
     UNKNOWN
 };
