@@ -13,4 +13,6 @@ bool ContinueProgramQuestion(error_t* error);
 bool AskUserQuestion(const char* question);
 char* GetDataFromLine(FILE* fp, error_t* error);
 
+void PrintMenu();
+
 #endif

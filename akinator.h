@@ -13,6 +13,7 @@ enum class AkinatorErrors
     UNEXPECTED_NODE,
     INVALID_SYNTAX,
     TREE_ERROR,
+    INVALID_STACK,
 
     UNKNOWN
 };
@@ -42,5 +43,25 @@ int PrintAkinatorError(FILE* fp, const void* err, const char* func, const char* 
 
 
 AkinatorErrors GuessMode(tree_t* tree, Node* node, const char* data_file, error_t* error);
+AkinatorErrors DescriptionMode(tree_t* tree, error_t* error);
+AkinatorErrors CompareMode(tree_t* tree, error_t* error);
+
+enum TreeSteps
+{
+    LEFT_STEP  = 0,
+    RIGHT_STEP = 1
+};
+
+enum AkinatorMode
+{
+    QUIT       = -1,
+
+    COMPARE    = 'C',
+    GUESS      = 'G',
+    DESCRIBE   = 'D',
+    PRINT_TREE = 'P'
+};
+
+AkinatorMode GetWorkingMode();
 
 #endif

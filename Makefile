@@ -16,7 +16,7 @@ CXXFLAGS =  -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-
 IMAGE = img
 BUILD_DIR = build/bin
 OBJECTS_DIR = build
-SOURCES = main.cpp logs.cpp tree.cpp errors.cpp graphs.cpp akinator.cpp input_and_output.cpp
+SOURCES = main.cpp logs.cpp tree.cpp errors.cpp graphs.cpp akinator.cpp input_and_output.cpp stack.cpp hash.cpp
 OBJECTS = $(SOURCES:%.cpp=$(OBJECTS_DIR)/%.o)
 DOXYFILE = Doxyfile
 DOXYBUILD = doxygen $(DOXYFILE)

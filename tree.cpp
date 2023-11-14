@@ -34,7 +34,7 @@ static const char* NIL = "nil";
 
 //-----------------------------------------------------------------------------------------------------
 
-Node* NodeCtor(node_data_t data, Node* left, Node* right, error_t* error)
+Node* NodeCtor(const node_data_t data, Node* left, Node* right, error_t* error)
 {
     assert(error);
 

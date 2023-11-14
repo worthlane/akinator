@@ -63,7 +63,7 @@ int PrintTreeError(FILE* fp, const void* err, const char* func, const char* file
                                                 }                                                       \
                                             } while(0)
 
-Node* NodeCtor(node_data_t data, Node* left, Node* right, error_t* error);
+Node* NodeCtor(const node_data_t data, Node* left, Node* right, error_t* error);
 void  NodeDtor(Node* node);
 
 node_data_t ReadNodeData(FILE* fp, error_t* error);

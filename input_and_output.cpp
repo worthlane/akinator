@@ -1,6 +1,7 @@
 #include <ctype.h>
 
 #include "input_and_output.h"
+#include "colorlib.h"
 
 static void ReadLine(FILE* fp, char* buf);
 
@@ -100,4 +101,14 @@ static void ReadLine(FILE* fp, char* buf)
         else
             buf[i] = ch;
     }
+}
+
+//-----------------------------------------------------------------------------------------------------
+
+void PrintMenu()
+{
+    PrintCyanText(stdout, "CHOOSE PROGRAM MODE:\n"
+                          "[G]UESS              [C]OMPARE\n"
+                          "[D]ESCRIBE           [P]RINT TREE\n"
+                          "                     [Q]UIT\n", nullptr);
 }
