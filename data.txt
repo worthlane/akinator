@@ -1,1 +1,1 @@
-("1win player"("fat"("Boombl4" nil  nil )("deko" nil  nil ))("lives in Cherepovets"("Ilya Podbelsky" nil  nil )("s1mple" nil  nil )))
+("1win player"("fat"("Boombl4" nil  nil )("deko" nil  nil ))("lives in Vologda region"("older than 12"("Anton" nil  nil )("Ilya Podbelsky" nil  nil ))("from Finland"("Laxen" nil  nil )("s1mple" nil  nil ))))

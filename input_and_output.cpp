@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <assert.h>
 
 #include "input_and_output.h"
 #include "colorlib.h"
@@ -32,7 +33,7 @@ bool ContinueProgramQuestion(error_t* error)
 {
     assert(error);
 
-    printf("Do you want to continue? (1 - Yes): ");
+    PrintCyanText(stdout, "Do you want to continue? (1 - Yes): ", nullptr);
 
     int ans = false;
     scanf("%d", &ans);
@@ -40,7 +41,7 @@ bool ContinueProgramQuestion(error_t* error)
 
     if (ans != 1)
     {
-        printf("Bye Bye");
+        PrintCyanText(stdout, "Bye Bye", nullptr);
         error->code = (int) ERRORS::USER_QUIT;
     }
 
@@ -53,7 +54,7 @@ bool AskUserQuestion(const char* question)
 {
     assert(question);
 
-    printf("%s (1 - Yes): ", question);
+    PrintCyanText(stdout, "%s (1 - Yes): ", question);
 
     int ans = false;
     scanf("%d", &ans);
@@ -112,3 +113,62 @@ void PrintMenu()
                           "[D]ESCRIBE           [P]RINT TREE\n"
                           "                     [Q]UIT\n", nullptr);
 }
+
+//-----------------------------------------------------------------------------------------------------
+
+bool DoesLineHaveOtherSymbols(FILE* fp)
+{
+    int ch = 0;
+
+    while ((ch = getc(fp)) != '\n' && ch != EOF)
+    {
+        if (!isspace(ch))
+            {
+                ClearInput(fp);
+                return true;
+            }
+    }
+
+    return false;
+}
+
+//-----------------------------------------------------------------------------------------------------
+
+FILE* OpenInputFile(const char* file_name, error_t* error)
+{
+    assert(file_name);
+    assert(error);
+
+    FILE* fp = fopen(file_name, "r");
+    if (!fp)
+    {
+        error->code = (int) ERRORS::OPEN_FILE;
+        error->data = file_name;
+    }
+
+    return fp;
+}
+
+//-----------------------------------------------------------------------------------------------------
+
+const char* GetInputFileName(const int argc, const char* argv[], error_t* error)
+{
+    assert(error);
+    assert(argv);
+
+    const char* file_name = nullptr;
+
+    if (argc > 1)
+        file_name = argv[1];
+    else
+    {
+        PrintCyanText(stdout, "Enter input file name: \n", nullptr);
+        file_name = GetDataFromLine(stdin, error);
+    }
+
+    if (file_name != nullptr)
+        PrintGreenText(stdout, "INPUT FILE NAME: \"%s\"\n", file_name);
+
+    return file_name;
+}
+

@@ -69,7 +69,6 @@ TreeErrors TreeCtor(tree_t* tree, error_t* error)
     Node* root = NodeCtor(ROOT_DATA, nullptr, nullptr, error);
     RETURN_IF_TREE_ERROR((TreeErrors) error->code);
 
-    tree->size = 0;
     tree->root = root;
 
     return TreeErrors::NONE;
@@ -81,7 +80,6 @@ void TreeDtor(tree_t* tree)
 {
     DestructNodes(tree->root);
 
-    tree->size = 0;
     tree->root = nullptr;
 }
 
@@ -366,6 +364,26 @@ static inline void DeleteClosingBracketFromWord(FILE* fp, char* read)
         read[bracket_pos] = '\0';
         ungetc(')', fp);
     }
+}
+
+//-----------------------------------------------------------------------------------------------------
+
+int NodeDump(FILE* fp, const void* dumping_node, const char* func, const char* file, const int line)
+{
+    assert(dumping_node);
+
+    LOG_START_DUMP(func, file, line);
+
+    const Node* node = (const Node*) dumping_node;
+
+    fprintf(fp, "NODE [%p]<br>\n"
+                "DATA > %s<br>\n"
+                "LEFT > [%p]<br>\n"
+                "RIGHT > [%p]<br>\n", node, node->data, node->left, node->right);
+
+    LOG_END();
+
+    return (int) TreeErrors::NONE;
 }
 
 //-----------------------------------------------------------------------------------------------------

@@ -74,7 +74,7 @@ static AkinatorErrors AskUserAboutNode(Node* node, bool* answer, error_t* error)
 
     while (true)
     {
-        printf("Is it %s?\n", node->data);
+        PrintCyanText(stdout, "Is it %s?\n", node->data);
 
         char ans[MAX_STRING_LEN] = {};
         scanf("%s", ans);
@@ -120,6 +120,16 @@ int PrintAkinatorError(FILE* fp, const void* err, const char* func, const char* 
             LOG_END();
             return (int) error->code;
 
+        case (AkinatorErrors::DATA_FILE):
+            fprintf(fp, "CAN NOT WORK WITH FILE \"%s\"<br>\n", (const char*) error->data);
+            LOG_END();
+            return (int) error->code;
+
+        case (AkinatorErrors::UNEXPECTED_NODE):
+            fprintf(fp, "UNEXPECTED NODE<br>\n");
+            LOG_END();
+            return (int) error->code;
+
         case (AkinatorErrors::UNKNOWN):
         // fall through
         default:
@@ -148,7 +158,7 @@ static AkinatorErrors GuessingLastNodeCase(tree_t* tree, Node* node,
 
     if (answer == true)
     {
-        printf("EZ\n");
+        PrintCyanText(stdout, "EZ\n", nullptr);  // как писать без этого нуллптр если это дефайн пока не придумал
         return AkinatorErrors::NONE;
     }
     else
@@ -171,13 +181,13 @@ static AkinatorErrors UpdateAkinatorData(tree_t* tree, Node* node, const char* d
     assert(node);
     assert(error);
 
-    printf("What did you guess?\n");
+    PrintCyanText(stdout, "What did you guess?\n", nullptr);
 
     node_data_t guessed_object = GetDataFromLine(stdin, error);
     if (error->code != (int) ERRORS::NONE)
         return AkinatorErrors::INVALID_SYNTAX;
 
-    printf("What's difference between %s and %s?\n", guessed_object, node->data);
+    PrintCyanText(stdout, "What's difference between %s and %s?\n", guessed_object, node->data);
 
     node_data_t difference = GetDataFromLine(stdin, error);
     if (error->code != (int) ERRORS::NONE)
@@ -234,7 +244,7 @@ static AkinatorErrors SaveNewTreeInData(const tree_t* tree, const char* data_fil
 
         TreePrefixPrint(fp, tree);
 
-        printf("DATA SUCCESFULLY UPDATED\n");
+        PrintGreenText(stdout, "DATA SUCCESFULLY UPDATED\n", nullptr);
         fclose(fp);
     }
 
@@ -248,7 +258,7 @@ AkinatorErrors DescriptionMode(tree_t* tree, error_t* error)
     assert(tree);
     assert(error);
 
-    printf("What do you want to describe?\n");
+    PrintCyanText(stdout, "What do you want to describe?\n", nullptr);
 
     char* object = GetDataFromLine(stdin, error);
     if (error->code != (int) ERRORS::NONE)
@@ -267,7 +277,7 @@ AkinatorErrors DescriptionMode(tree_t* tree, error_t* error)
         return AkinatorErrors::NONE;
     }
 
-    printf("%s - ", object);
+    PrintCyanText(stdout, "%s - ", object);
     PrintObjectPropertiesBasedOnStack(&stk, 0, tree->root, error);
     RETURN_IF_AKINATOR_ERROR((AkinatorErrors) error->code);
 
@@ -351,12 +361,12 @@ static AkinatorErrors PrintObjectPropertiesBasedOnStack(const Stack_t* stk, cons
 
         if (step == RIGHT_STEP)
         {
-            printf("not %s, ", current_node->data);
+            PrintCyanText(stdout, "not %s, ", current_node->data);
             current_node = current_node->right;
         }
         else if (step == LEFT_STEP)
         {
-            printf("%s, ", current_node->data);
+            PrintCyanText(stdout, "%s, ", current_node->data);
             current_node = current_node->left;
         }
         else
@@ -377,13 +387,13 @@ AkinatorErrors CompareMode(tree_t* tree, error_t* error)
     assert(tree);
     assert(error);
 
-    printf("Input first object\n");
+    PrintCyanText(stdout, "Input first object\n", nullptr);
 
     char* object_1 = GetDataFromLine(stdin, error);
     if (error->code != (int) ERRORS::NONE)
         return AkinatorErrors::INVALID_SYNTAX;
 
-    printf("Input second object\n");
+    PrintCyanText(stdout, "Input second object\n", nullptr);
 
     char* object_2 = GetDataFromLine(stdin, error);
     if (error->code != (int) ERRORS::NONE)
@@ -442,20 +452,20 @@ static AkinatorErrors CompareObjectsDescription(const Stack_t* stk_1, const Stac
 
     if (stk_1->data[stk_index] == stk_2->data[stk_index])
     {
-        printf("%s and %s are similar in that they both are: ", object_1, object_2);
+        PrintCyanText(stdout, "%s and %s are similar in that they both are: ", object_1, object_2);
 
         WriteSimilarProperties(stk_1, stk_2, &stk_index, &curr_node, error);
         RETURN_IF_AKINATOR_ERROR((AkinatorErrors) error->code);
 
-        printf("But ");
+        PrintCyanText(stdout, "But ", nullptr);
     }
 
-    printf("%s is: ", object_1);
+    PrintCyanText(stdout, "%s is: ", object_1);
 
     PrintObjectPropertiesBasedOnStack(stk_1, stk_index, curr_node, error);
     RETURN_IF_AKINATOR_ERROR((AkinatorErrors) error->code);
 
-    printf("And %s is: ", object_2);
+    PrintCyanText(stdout, "And %s is: ", object_2);
 
     PrintObjectPropertiesBasedOnStack(stk_2, stk_index, curr_node, error);
     RETURN_IF_AKINATOR_ERROR((AkinatorErrors) error->code);
@@ -486,12 +496,12 @@ static AkinatorErrors WriteSimilarProperties(const Stack_t* stk_1, const Stack_t
 
         if (step == RIGHT_STEP)
         {
-            printf("not %s, ", (*curr_node)->data);
+            PrintCyanText(stdout, "not %s, ", (*curr_node)->data);
             *curr_node = (*curr_node)->right;
         }
         else if (step == LEFT_STEP)
         {
-            printf("%s, ", (*curr_node)->data);
+            PrintCyanText(stdout, "%s, ", (*curr_node)->data);
             (*curr_node) = (*curr_node)->left;
         }
         else
@@ -510,19 +520,14 @@ static AkinatorErrors WriteSimilarProperties(const Stack_t* stk_1, const Stack_t
 AkinatorMode GetWorkingMode()
 {
     int mode = 0;
-    int ch   = 0;
 
     scanf("%c", &mode);
     mode = toupper(mode);
 
-    while ((ch = getchar()) != '\n' && ch != EOF)   // checking for other symbols in line
-    {
-        if (!isspace(ch))
-            {
-                ClearInput(stdin);
-                return AkinatorMode::QUIT;
-            }
-    }
+    bool have_other_symb = DoesLineHaveOtherSymbols(stdin);
+
+    if (have_other_symb == true)
+        return AkinatorMode::QUIT;
 
     switch ((AkinatorMode) mode)
     {

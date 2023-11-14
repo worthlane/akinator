@@ -24,8 +24,6 @@ struct Node
 struct Tree
 {
     Node* root;
-
-    size_t size;
 };
 typedef struct Tree tree_t;
 
@@ -65,6 +63,15 @@ int PrintTreeError(FILE* fp, const void* err, const char* func, const char* file
 
 Node* NodeCtor(const node_data_t data, Node* left, Node* right, error_t* error);
 void  NodeDtor(Node* node);
+int   NodeDump(FILE* fp, const void* dumping_node, const char* func, const char* file, const int line);
+
+#ifdef DUMP_NODE
+#undef DUMP_NODE
+#endif
+#define DUMP_NODE(tree)  do                                                              \
+                            {                                                               \
+                                LogDump(NodeDump, (tree), __func__, __FILE__, __LINE__); \
+                            } while(0)
 
 node_data_t ReadNodeData(FILE* fp, error_t* error);
 

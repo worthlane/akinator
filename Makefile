@@ -13,6 +13,9 @@ CXXFLAGS =  -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-
 			-Wno-old-style-cast -Wno-varargs -Wstack-protector -fcheck-new -fsized-deallocation    \
 			-fstack-protector -fstrict-overflow -fno-omit-frame-pointer -Wlarger-than=8192         \
 			-Wstack-usage=8192 -fPIE -Werror=vla
+
+HOME = $(shell pwd)
+CXXFLAGS += -I $(HOME)
 IMAGE = img
 BUILD_DIR = build/bin
 OBJECTS_DIR = build
@@ -43,4 +46,4 @@ makedirs:
 	mkdir -p $(IMAGE)
 
 test:
-	$(CXX) $(CXXFLAGS) $(SOURCES)
+	echo $(OUT_OBJECTS)
