@@ -5,7 +5,8 @@
 
 #include "errors.h"
 
-static const size_t MAX_STRING_LEN = 100;
+static const size_t MAX_STRING_LEN  = 100;
+static const size_t MAX_COMMAND_LEN = 200;
 
 void SkipSpaces(FILE* fp);
 void ClearInput(FILE* fp);
@@ -18,6 +19,8 @@ bool DoesLineHaveOtherSymbols(FILE* fp);
 
 const char* GetInputFileName(const int argc, const char* argv[], error_t* error);
 FILE* OpenInputFile(const char* file_name, error_t* error);
+
+int SayPhrase(const char *format, ...);
 
 void PrintMenu();
 

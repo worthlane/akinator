@@ -37,6 +37,11 @@ int PrintError(FILE* fp, const void* err, const char* func, const char* file, co
             LOG_END();
             return (int) error->code;
 
+        case (ERRORS::INVALID_STACK):
+            fprintf(fp, "ERROR WITH STACK<br>\n");
+            LOG_END();
+            return (int) error->code;
+
         case (ERRORS::PRINT_DATA):
             fprintf(fp, "DATA PRINT ERROR<br>\n"
                         "FAILED TO PRINT DATA IN \"%s\"<br>\n", (char*) error->data);

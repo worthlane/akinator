@@ -17,6 +17,7 @@ static Node* NodesPrefixRead(FILE* fp, error_t* error);
 static inline void DeleteClosingBracketFromWord(FILE* fp, char* read);
 static TreeErrors CheckQuotatationMark(FILE* fp, error_t* error);
 static TreeErrors ReadTextInQuotes(FILE* fp, char* data, error_t* error);
+static char CheckOpeningBracketInInput(FILE* fp);
 
 static Node* ReadNewNode(FILE* fp, error_t* error);
 
@@ -128,6 +129,18 @@ int PrintTreeError(FILE* fp, const void* err, const char* func, const char* file
             LOG_END();
             return (int) error->code;
 
+        case (TreeErrors::CYCLED_NODE):
+            fprintf(fp, "NODE ID IT'S OWN PREDECESSOR<br>\n");
+            DUMP_NODE(error->data);
+            LOG_END();
+            return (int) error->code;
+
+        case (TreeErrors::COMMON_HEIR):
+            fprintf(fp, "NODE'S HEIRS ARE SAME<br>\n");
+            DUMP_NODE(error->data);
+            LOG_END();
+            return (int) error->code;
+
         case (TreeErrors::UNKNOWN):
         // fall through
         default:
@@ -234,20 +247,26 @@ void TreePrefixRead(FILE* fp, tree_t* tree, error_t* error)
 
 //-----------------------------------------------------------------------------------------------------
 
+static char CheckOpeningBracketInInput(FILE* fp)
+{
+    SkipSpaces(fp);
+    char opening_bracket_check = getc(fp);
+    SkipSpaces(fp);
+
+    return opening_bracket_check;
+}
+
+//-----------------------------------------------------------------------------------------------------
+
 static Node* NodesPrefixRead(FILE* fp, error_t* error)
 {
     assert(error);
 
-    SkipSpaces(fp);
-    char opening_bracket_check = 0;
-    opening_bracket_check = getc(fp);
-    SkipSpaces(fp);
+    char opening_bracket_check = CheckOpeningBracketInInput(fp);
 
     if (opening_bracket_check == '(')
     {
         Node* new_node = ReadNewNode(fp, error);
-
-        SkipSpaces(fp);
 
         char closing_bracket_check = getc(fp);
         if (closing_bracket_check != ')')
@@ -288,6 +307,8 @@ static Node* ReadNewNode(FILE* fp, error_t* error)
     node->left  = NodesPrefixRead(fp, error);
     node->right = NodesPrefixRead(fp, error);
 
+    SkipSpaces(fp);
+
     return node;
 }
 
@@ -321,11 +342,13 @@ TreeErrors NodeVerify(const Node* node, error_t* error)
     if (node == node->left || node == node->right)
     {
         error->code = (int) TreeErrors::CYCLED_NODE;
+        error->data = node;
         return TreeErrors::CYCLED_NODE;
     }
     if (node->left == node->right)
     {
         error->code = (int) TreeErrors::COMMON_HEIR;
+        error->data = node;
         return TreeErrors::COMMON_HEIR;
     }
 

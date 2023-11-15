@@ -1,5 +1,6 @@
 #include <ctype.h>
 #include <assert.h>
+#include <stdarg.h>
 
 #include "input_and_output.h"
 #include "colorlib.h"
@@ -33,7 +34,7 @@ bool ContinueProgramQuestion(error_t* error)
 {
     assert(error);
 
-    PrintCyanText(stdout, "Do you want to continue? (1 - Yes): ", nullptr);
+    SayPhrase("Do you want to continue? (1 - Yes): ");
 
     int ans = false;
     scanf("%d", &ans);
@@ -41,7 +42,7 @@ bool ContinueProgramQuestion(error_t* error)
 
     if (ans != 1)
     {
-        PrintCyanText(stdout, "Bye Bye", nullptr);
+        PrintRedText(stdout, "Bye Bye", nullptr);
         error->code = (int) ERRORS::USER_QUIT;
     }
 
@@ -54,7 +55,7 @@ bool AskUserQuestion(const char* question)
 {
     assert(question);
 
-    PrintCyanText(stdout, "%s (1 - Yes): ", question);
+    SayPhrase("%s (1 - Yes): ", question);
 
     int ans = false;
     scanf("%d", &ans);
@@ -162,7 +163,7 @@ const char* GetInputFileName(const int argc, const char* argv[], error_t* error)
         file_name = argv[1];
     else
     {
-        PrintCyanText(stdout, "Enter input file name: \n", nullptr);
+        PrintGreenText(stdout, "Enter input file name: \n", nullptr);
         file_name = GetDataFromLine(stdin, error);
     }
 
@@ -170,5 +171,27 @@ const char* GetInputFileName(const int argc, const char* argv[], error_t* error)
         PrintGreenText(stdout, "INPUT FILE NAME: \"%s\"\n", file_name);
 
     return file_name;
+}
+
+//-----------------------------------------------------------------------------------------------------
+
+int SayPhrase(const char *format, ...)
+{
+    va_list arg;
+    int done;
+
+    char buf[MAX_STRING_LEN] = {};
+
+    va_start (arg, format);
+    done = vsnprintf(buf, MAX_STRING_LEN, format, arg);
+    va_end (arg);
+
+    PrintCyanText(stdout, "%s", buf);
+
+    char cmd[MAX_COMMAND_LEN] = {};
+    snprintf(cmd, MAX_COMMAND_LEN, "say %s", buf);
+    system(cmd);
+
+    return done;
 }
 

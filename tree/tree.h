@@ -70,9 +70,9 @@ int   NodeDump(FILE* fp, const void* dumping_node, const char* func, const char*
 #ifdef DUMP_NODE
 #undef DUMP_NODE
 #endif
-#define DUMP_NODE(tree)     do                                                              \
+#define DUMP_NODE(node)     do                                                              \
                             {                                                               \
-                                LogDump(NodeDump, (tree), __func__, __FILE__, __LINE__);    \
+                                LogDump(NodeDump, (node), __func__, __FILE__, __LINE__);    \
                             } while(0)
 
 TreeErrors NodeVerify(const Node* node, error_t* error);

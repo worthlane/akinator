@@ -74,7 +74,7 @@ static AkinatorErrors AskUserAboutNode(Node* node, bool* answer, error_t* error)
 
     while (true)
     {
-        PrintCyanText(stdout, "Is it %s?\n", node->data);
+        SayPhrase("Is it %s?\n", node->data);
 
         char ans[MAX_STRING_LEN] = {};
         scanf("%s", ans);
@@ -158,7 +158,7 @@ static AkinatorErrors GuessingLastNodeCase(tree_t* tree, Node* node,
 
     if (answer == true)
     {
-        PrintCyanText(stdout, "EZ\n", nullptr);
+        SayPhrase("EZ\n");
         return AkinatorErrors::NONE;
     }
     else
@@ -181,13 +181,13 @@ static AkinatorErrors UpdateAkinatorData(tree_t* tree, Node* node, const char* d
     assert(node);
     assert(error);
 
-    PrintCyanText(stdout, "What did you guess?\n", nullptr);
+    SayPhrase("What did you guess?\n");
 
     node_data_t guessed_object = GetDataFromLine(stdin, error);
     if (error->code != (int) ERRORS::NONE)
         return AkinatorErrors::INVALID_SYNTAX;
 
-    PrintCyanText(stdout, "What's difference between %s and %s?\n", guessed_object, node->data);
+    SayPhrase("What's difference between %s and %s?\n", guessed_object, node->data);
 
     node_data_t difference = GetDataFromLine(stdin, error);
     if (error->code != (int) ERRORS::NONE)
@@ -258,7 +258,7 @@ AkinatorErrors DescriptionMode(tree_t* tree, error_t* error)
     assert(tree);
     assert(error);
 
-    PrintCyanText(stdout, "What do you want to describe?\n", nullptr);
+    SayPhrase("What do you want to describe?\n", nullptr);
 
     char* object = GetDataFromLine(stdin, error);
     if (error->code != (int) ERRORS::NONE)
@@ -277,7 +277,7 @@ AkinatorErrors DescriptionMode(tree_t* tree, error_t* error)
         return AkinatorErrors::NONE;
     }
 
-    PrintCyanText(stdout, "%s - ", object);
+    SayPhrase("%s - ", object);
     PrintObjectPropertiesBasedOnStack(&stk, 0, tree->root, error);
     RETURN_IF_AKINATOR_ERROR((AkinatorErrors) error->code);
 
@@ -349,7 +349,7 @@ static AkinatorErrors PrintObjectPropertiesBasedOnStack(const Stack_t* stk, cons
 
     Node* current_node = node;
 
-    for (int i = start_stk_index; i < stk->size; i++)
+    for (size_t i = start_stk_index; i < stk->size; i++)
     {
         elem_t step = stk->data[i];
 
@@ -361,12 +361,12 @@ static AkinatorErrors PrintObjectPropertiesBasedOnStack(const Stack_t* stk, cons
 
         if (step == RIGHT_STEP)
         {
-            PrintCyanText(stdout, "not %s, ", current_node->data);
+            SayPhrase("not %s, ", current_node->data);
             current_node = current_node->right;
         }
         else if (step == LEFT_STEP)
         {
-            PrintCyanText(stdout, "%s, ", current_node->data);
+            SayPhrase("%s, ", current_node->data);
             current_node = current_node->left;
         }
         else
@@ -387,13 +387,13 @@ AkinatorErrors CompareMode(tree_t* tree, error_t* error)
     assert(tree);
     assert(error);
 
-    PrintCyanText(stdout, "Input first object\n", nullptr);
+    SayPhrase("Input first object\n");
 
     char* object_1 = GetDataFromLine(stdin, error);
     if (error->code != (int) ERRORS::NONE)
         return AkinatorErrors::INVALID_SYNTAX;
 
-    PrintCyanText(stdout, "Input second object\n", nullptr);
+    SayPhrase("Input second object\n");
 
     char* object_2 = GetDataFromLine(stdin, error);
     if (error->code != (int) ERRORS::NONE)
@@ -452,20 +452,20 @@ static AkinatorErrors CompareObjectsDescription(const Stack_t* stk_1, const Stac
 
     if (stk_1->data[stk_index] == stk_2->data[stk_index])
     {
-        PrintCyanText(stdout, "%s and %s are similar in that they both are: ", object_1, object_2);
+        SayPhrase("%s and %s are similar in that they both are: ", object_1, object_2);
 
         WriteSimilarProperties(stk_1, stk_2, &stk_index, &curr_node, error);
         RETURN_IF_AKINATOR_ERROR((AkinatorErrors) error->code);
 
-        PrintCyanText(stdout, "But ", nullptr);
+        SayPhrase("But ");
     }
 
-    PrintCyanText(stdout, "%s is: ", object_1);
+    SayPhrase("%s is: ", object_1);
 
     PrintObjectPropertiesBasedOnStack(stk_1, stk_index, curr_node, error);
     RETURN_IF_AKINATOR_ERROR((AkinatorErrors) error->code);
 
-    PrintCyanText(stdout, "And %s is: ", object_2);
+    SayPhrase("And %s is: ", object_2);
 
     PrintObjectPropertiesBasedOnStack(stk_2, stk_index, curr_node, error);
     RETURN_IF_AKINATOR_ERROR((AkinatorErrors) error->code);
@@ -496,12 +496,12 @@ static AkinatorErrors WriteSimilarProperties(const Stack_t* stk_1, const Stack_t
 
         if (step == RIGHT_STEP)
         {
-            PrintCyanText(stdout, "not %s, ", (*curr_node)->data);
+            SayPhrase("not %s, ", (*curr_node)->data);
             *curr_node = (*curr_node)->right;
         }
         else if (step == LEFT_STEP)
         {
-            PrintCyanText(stdout, "%s, ", (*curr_node)->data);
+            SayPhrase("%s, ", (*curr_node)->data);
             (*curr_node) = (*curr_node)->left;
         }
         else
