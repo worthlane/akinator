@@ -158,7 +158,7 @@ static AkinatorErrors GuessingLastNodeCase(tree_t* tree, Node* node,
 
     if (answer == true)
     {
-        PrintCyanText(stdout, "EZ\n", nullptr);  // как писать без этого нуллптр если это дефайн пока не придумал
+        PrintCyanText(stdout, "EZ\n", nullptr);
         return AkinatorErrors::NONE;
     }
     else
@@ -519,6 +519,8 @@ static AkinatorErrors WriteSimilarProperties(const Stack_t* stk_1, const Stack_t
 
 AkinatorMode GetWorkingMode()
 {
+    PrintMenu();
+
     int mode = 0;
 
     scanf("%c", &mode);

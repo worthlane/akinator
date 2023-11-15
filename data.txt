@@ -1,1 +1,35 @@
-("1win player"("fat"("Boombl4" nil  nil )("deko" nil  nil ))("lives in Vologda region"("older than 12"("Anton" nil  nil )("Ilya Podbelsky" nil  nil ))("from Finland"("Laxen" nil  nil )("s1mple" nil  nil ))))
+("cs2 professional player"
+("playing for Cloud9"
+("Boombl4"
+ nil  nil )
+("major winner"
+("gla1ve"
+ nil  nil )
+("deko"
+ nil  nil )
+)
+)
+("hockey player"
+("Cherepovets citizen"
+("Ilya"
+ nil  nil )
+("Anton"
+ nil  nil )
+)
+("from Sweden"
+("youtuber"
+("PewDiePie"
+ nil  nil )
+("Laxen"
+ nil  nil )
+)
+("MIPT student"
+("Cyrill"
+ nil  nil )
+("something unknown"
+ nil  nil )
+)
+)
+)
+)
+

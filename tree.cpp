@@ -172,12 +172,12 @@ static void NodesPrefixPrint(FILE* fp, const Node* node)
 {
     if (!node) { fprintf(fp, " %s ", NIL); return; }
 
-    fprintf(fp, "(" PRINT_NODE, node->data);
+    fprintf(fp, "(" PRINT_NODE "\n", node->data);
 
     NodesPrefixPrint(fp, node->left);
     NodesPrefixPrint(fp, node->right);
 
-    fprintf(fp, ")");
+    fprintf(fp, ")\n");
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -215,7 +215,20 @@ void TreePrefixRead(FILE* fp, tree_t* tree, error_t* error)
 {
     assert(tree);
 
-    tree->root = NodesPrefixRead(fp, error);
+    SkipSpaces(fp);
+    int ch = getc(fp);
+
+    Node* root = nullptr;
+
+    if (ch == EOF)
+        root = NodeCtor("something unknown", 0, 0, error);
+    else
+    {
+        ungetc(ch, fp);
+        root = NodesPrefixRead(fp, error);
+    }
+
+    tree->root = root;
 }
 
 //-----------------------------------------------------------------------------------------------------
