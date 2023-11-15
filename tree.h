@@ -34,6 +34,8 @@ enum class TreeErrors
     ALLOCATE_MEMORY,
     EMPTY_TREE,
     INVALID_SYNTAX,
+    CYCLED_NODE,
+    COMMON_HEIR,
 
     UNKNOWN
 };
@@ -42,20 +44,20 @@ int PrintTreeError(FILE* fp, const void* err, const char* func, const char* file
 #ifdef EXIT_IF_TREE_ERROR
 #undef EXIT_IF_TREE_ERROR
 #endif
-#define EXIT_IF_TREE_ERROR(error)         do                                                          \
+#define EXIT_IF_TREE_ERROR(error)         do                                                            \
                                             {                                                           \
-                                                if ((error)->code != (int) TreeErrors::NONE)         \
+                                                if ((error)->code != (int) TreeErrors::NONE)            \
                                                 {                                                       \
-                                                    return LogDump(PrintTreeError, error, __func__,  \
+                                                    return LogDump(PrintTreeError, error, __func__,     \
                                                                     __FILE__, __LINE__);                \
                                                 }                                                       \
                                             } while(0)
 #ifdef RETURN_IF_TREE_ERROR
 #undef RETURN_IF_TREE_ERROR
 #endif
-#define RETURN_IF_TREE_ERROR(error)       do                                                          \
+#define RETURN_IF_TREE_ERROR(error)       do                                                            \
                                             {                                                           \
-                                                if ((error) != TreeErrors::NONE)                     \
+                                                if ((error) != TreeErrors::NONE)                        \
                                                 {                                                       \
                                                     return error;                                       \
                                                 }                                                       \
@@ -68,10 +70,22 @@ int   NodeDump(FILE* fp, const void* dumping_node, const char* func, const char*
 #ifdef DUMP_NODE
 #undef DUMP_NODE
 #endif
-#define DUMP_NODE(tree)  do                                                              \
+#define DUMP_NODE(tree)     do                                                              \
                             {                                                               \
-                                LogDump(NodeDump, (tree), __func__, __FILE__, __LINE__); \
+                                LogDump(NodeDump, (tree), __func__, __FILE__, __LINE__);    \
                             } while(0)
+
+TreeErrors NodeVerify(const Node* node, error_t* error);
+
+#ifdef CHECK_NODE
+#undef CHECK_NODE
+#endif
+#define CHECK_NODE(node, error)     do                                                              \
+                                    {                                                               \
+                                        TreeErrors node_err_ = NodeVerify(node, error);             \
+                                        if (node_err_ != TreeErrors::NONE)                          \
+                                            return node_err_;                                       \
+                                    } while(0)
 
 node_data_t ReadNodeData(FILE* fp, error_t* error);
 
@@ -86,9 +100,21 @@ int        TreeDump(FILE* fp, const void* nodes, const char* func, const char* f
 #ifdef DUMP_TREE
 #undef DUMP_TREE
 #endif
-#define DUMP_TREE(tree)  do                                                              \
+#define DUMP_TREE(tree)  do                                                                 \
                             {                                                               \
-                                LogDump(TreeDump, (tree), __func__, __FILE__, __LINE__); \
+                                LogDump(TreeDump, (tree), __func__, __FILE__, __LINE__);    \
                             } while(0)
+
+TreeErrors TreeVerify(const tree_t* tree, error_t* error);
+
+#ifdef CHECK_TREE
+#undef CHECK_TREE
+#endif
+#define CHECK_TREE(tree, error)     do                                                              \
+                                    {                                                               \
+                                        TreeErrors tree_err_ = TreeVerify(tree, error);             \
+                                        if (tree_err_ != TreeErrors::NONE)                          \
+                                            return tree_err_;                                       \
+                                    } while(0)
 
 #endif

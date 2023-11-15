@@ -21,6 +21,7 @@ static TreeErrors ReadTextInQuotes(FILE* fp, char* data, error_t* error);
 static Node* ReadNewNode(FILE* fp, error_t* error);
 
 static void TextTreeDump(FILE* fp, const tree_t* tree);
+static TreeErrors VerifyNodes(const Node* node, error_t* error);
 
 // ======== GRAPHS =========
 
@@ -312,6 +313,27 @@ node_data_t ReadNodeData(FILE* fp, error_t* error)
 
 //-----------------------------------------------------------------------------------------------------
 
+TreeErrors NodeVerify(const Node* node, error_t* error)
+{
+    assert(node);
+    assert(error);
+
+    if (node == node->left || node == node->right)
+    {
+        error->code = (int) TreeErrors::CYCLED_NODE;
+        return TreeErrors::CYCLED_NODE;
+    }
+    if (node->left == node->right)
+    {
+        error->code = (int) TreeErrors::COMMON_HEIR;
+        return TreeErrors::COMMON_HEIR;
+    }
+
+    return TreeErrors::NONE;
+}
+
+//-----------------------------------------------------------------------------------------------------
+
 static TreeErrors ReadTextInQuotes(FILE* fp, char* data, error_t* error)
 {
     assert(data);
@@ -397,6 +419,42 @@ int NodeDump(FILE* fp, const void* dumping_node, const char* func, const char* f
     LOG_END();
 
     return (int) TreeErrors::NONE;
+}
+
+//-----------------------------------------------------------------------------------------------------
+
+TreeErrors TreeVerify(const tree_t* tree, error_t* error)
+{
+    assert(tree);
+    assert(error);
+
+    VerifyNodes(tree->root, error);
+
+    return (TreeErrors) error->code;
+}
+
+//-----------------------------------------------------------------------------------------------------
+
+static TreeErrors VerifyNodes(const Node* node, error_t* error)
+{
+    assert(node);
+    assert(error);
+
+    if (node->left != nullptr)
+    {
+        NodeVerify(node->left, error);
+        RETURN_IF_TREE_ERROR((TreeErrors) error->code);
+    }
+
+    if (node->right != nullptr)
+    {
+        NodeVerify(node->right, error);
+        RETURN_IF_TREE_ERROR((TreeErrors) error->code);
+    }
+
+    NodeVerify(node, error);
+
+    return (TreeErrors) error->code;
 }
 
 //-----------------------------------------------------------------------------------------------------
