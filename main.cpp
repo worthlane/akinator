@@ -1,7 +1,7 @@
-#include "tree.h"
-#include "akinator.h"
-#include "input_and_output.h"
-#include "colorlib.h"
+#include "tree/tree.h"
+#include "akinator/akinator.h"
+#include "common/input_and_output.h"
+#include "common/colorlib.h"
 
 static const char* INPUT_FILE = "data.txt";
 

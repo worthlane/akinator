@@ -2,7 +2,7 @@
 #include <time.h>
 
 #include "graphs.h"
-#include "logs.h"
+#include "common/logs.h"
 
 static size_t      IMG_CNT        = 1;
 static const char* IMG_FOLDER_DIR = "img/";

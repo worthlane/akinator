@@ -4,7 +4,7 @@
 
 #include "tree.h"
 #include "graphs.h"
-#include "input_and_output.h"
+#include "common/input_and_output.h"
 
 static void DestructNodes(Node* root);
 

@@ -1,5 +1,5 @@
 CXX = g++-13
-EXECUTABLE = akinator
+EXECUTABLE = akin
 CXXFLAGS =  -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-loop-optimizations \
 			-Wc++14-compat -Wmissing-declarations -Wcast-align -Wcast-qual -Wchar-subscripts       \
 			-Wconditionally-supported -Wconversion -Wctor-dtor-privacy -Wempty-body -Wfloat-equal  \
@@ -16,22 +16,47 @@ CXXFLAGS =  -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-
 
 HOME = $(shell pwd)
 CXXFLAGS += -I $(HOME)
+
 IMAGE = img
 BUILD_DIR = build/bin
 OBJECTS_DIR = build
-SOURCES = main.cpp logs.cpp tree.cpp errors.cpp graphs.cpp akinator.cpp input_and_output.cpp stack.cpp hash.cpp
+SOURCES = main.cpp
+AKINATOR_SOURCES = akinator/akinator.cpp
+AKINATOR_DIR = akinator
+STACK_SOURCES = stack/stack.cpp stack/hash.cpp
+STACK_DIR = stack
+TREE_SOURCES = tree/tree.cpp tree/graphs.cpp
+TREE_DIR = tree
+COMMON_SOURCES = common/logs.cpp common/errors.cpp common/input_and_output.cpp
+COMMON_DIR = common
 OBJECTS = $(SOURCES:%.cpp=$(OBJECTS_DIR)/%.o)
+STACK_OBJECTS = $(STACK_SOURCES:$(STACK_DIR)/%.cpp=$(OBJECTS_DIR)/%.o)
+AKINATOR_OBJECTS = $(AKINATOR_SOURCES:$(AKINATOR_DIR)/%.cpp=$(OBJECTS_DIR)/%.o)
+TREE_OBJECTS = $(TREE_SOURCES:$(TREE_DIR)/%.cpp=$(OBJECTS_DIR)/%.o)
+COMMON_OBJECTS = $(COMMON_SOURCES:$(COMMON_DIR)/%.cpp=$(OBJECTS_DIR)/%.o)
 DOXYFILE = Doxyfile
 DOXYBUILD = doxygen $(DOXYFILE)
 
 .PHONY: all
 all: $(EXECUTABLE)
 
-$(EXECUTABLE): $(OBJECTS)
+$(EXECUTABLE): $(OBJECTS) $(STACK_OBJECTS) $(AKINATOR_OBJECTS) $(TREE_OBJECTS) $(COMMON_OBJECTS)
 	$(CXX) $^ -o $@ $(CXXFLAGS)
 
 $(OBJECTS_DIR)/%.o : %.cpp
-	$(CXX) $(CXXFLAGS) -c $^ -o $@
+	$(CXX) -c $^ -o $@ $(CXXFLAGS)
+
+$(OBJECTS_DIR)/%.o : $(COMMON_DIR)/%.cpp
+	$(CXX) -c $^ -o $@ $(CXXFLAGS)
+
+$(OBJECTS_DIR)/%.o : $(TREE_DIR)/%.cpp
+	$(CXX) -c $^ -o $@ $(CXXFLAGS)
+
+$(OBJECTS_DIR)/%.o : $(AKINATOR_DIR)/%.cpp
+	$(CXX) -c $^ -o $@ $(CXXFLAGS)
+
+$(OBJECTS_DIR)/%.o : $(STACK_DIR)/%.cpp
+	$(CXX) -c $^ -o $@ $(CXXFLAGS)
 
 .PHONY: doxybuild clean install test
 
@@ -46,4 +71,4 @@ makedirs:
 	mkdir -p $(IMAGE)
 
 test:
-	echo $(OUT_OBJECTS)
+	echo $(OBJECTS) $(STACK_OBJECTS)

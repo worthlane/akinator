@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 
-#include "errors.h"
-#include "logs.h"
+#include "common/errors.h"
+#include "common/logs.h"
 #include "types.h"
 
 /*! \file

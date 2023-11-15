@@ -3,10 +3,10 @@
 #include <ctype.h>
 
 #include "akinator.h"
-#include "errors.h"
-#include "colorlib.h"
-#include "input_and_output.h"
-#include "stack.h"
+#include "common/errors.h"
+#include "common/colorlib.h"
+#include "common/input_and_output.h"
+#include "stack/stack.h"
 
 static AkinatorErrors AskUserAboutNode(Node* node, bool* answer, error_t* error);
 static AkinatorErrors GuessingLastNodeCase(tree_t* tree, Node* node,

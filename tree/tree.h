@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "errors.h"
+#include "common/errors.h"
 
 typedef char* node_data_t;
 #ifdef PRINT_NODE
