@@ -5,6 +5,7 @@
 #include "tree.h"
 #include "graphs.h"
 #include "common/input_and_output.h"
+#include "common/fast_input_and_output.h"
 
 static void DestructNodes(Node* root);
 
@@ -12,14 +13,14 @@ static void NodesPrefixPrint(FILE* fp, const Node* node);
 static void NodesPostfixPrint(FILE* fp, const Node* node);
 static void NodesInfixPrint(FILE* fp, const Node* node);
 
-static Node* NodesPrefixRead(FILE* fp, error_t* error);
+static Node* NodesPrefixRead(Storage* info, error_t* error);
 
-static inline void DeleteClosingBracketFromWord(FILE* fp, char* read);
-static TreeErrors CheckQuotatationMark(FILE* fp, error_t* error);
-static TreeErrors ReadTextInQuotes(FILE* fp, char* data, error_t* error);
-static char CheckOpeningBracketInInput(FILE* fp);
+static inline void DeleteClosingBracketFromWord(Storage* info, char* read);
+static TreeErrors CheckQuotatationMark(Storage* info, error_t* error);
+static TreeErrors ReadTextInQuotes(Storage* info, char* data, error_t* error);
+static char CheckOpeningBracketInInput(Storage* info);
 
-static Node* ReadNewNode(FILE* fp, error_t* error);
+static Node* ReadNewNode(Storage* info, error_t* error);
 
 static void TextTreeDump(FILE* fp, const tree_t* tree);
 static TreeErrors VerifyNodes(const Node* node, error_t* error);
@@ -225,12 +226,13 @@ static void NodesPostfixPrint(FILE* fp, const Node* node)
 
 //-----------------------------------------------------------------------------------------------------
 
-void TreePrefixRead(FILE* fp, tree_t* tree, error_t* error)
+void TreePrefixRead(Storage* info, tree_t* tree, error_t* error)
 {
     assert(tree);
+    assert(info);
 
-    SkipSpaces(fp);
-    int ch = getc(fp);
+    SkipSpaces(info);
+    int ch = Bufgetc(info);
 
     Node* root = nullptr;
 
@@ -238,8 +240,8 @@ void TreePrefixRead(FILE* fp, tree_t* tree, error_t* error)
         root = NodeCtor("something unknown", 0, 0, error);
     else
     {
-        ungetc(ch, fp);
-        root = NodesPrefixRead(fp, error);
+        Bufungetc(info);
+        root = NodesPrefixRead(info, error);
     }
 
     tree->root = root;
@@ -247,28 +249,28 @@ void TreePrefixRead(FILE* fp, tree_t* tree, error_t* error)
 
 //-----------------------------------------------------------------------------------------------------
 
-static char CheckOpeningBracketInInput(FILE* fp)
+static char CheckOpeningBracketInInput(Storage* info)
 {
-    SkipSpaces(fp);
-    char opening_bracket_check = getc(fp);
-    SkipSpaces(fp);
+    SkipSpaces(info);
+    char opening_bracket_check = Bufgetc(info);
+    SkipSpaces(info);
 
     return opening_bracket_check;
 }
 
 //-----------------------------------------------------------------------------------------------------
 
-static Node* NodesPrefixRead(FILE* fp, error_t* error)
+static Node* NodesPrefixRead(Storage* info, error_t* error)
 {
     assert(error);
 
-    char opening_bracket_check = CheckOpeningBracketInInput(fp);
+    char opening_bracket_check = CheckOpeningBracketInInput(info);
 
     if (opening_bracket_check == '(')
     {
-        Node* new_node = ReadNewNode(fp, error);
+        Node* new_node = ReadNewNode(info, error);
 
-        char closing_bracket_check = getc(fp);
+        char closing_bracket_check = Bufgetc(info);
         if (closing_bracket_check != ')')
         {
             error->code = (int) TreeErrors::INVALID_SYNTAX;
@@ -279,12 +281,13 @@ static Node* NodesPrefixRead(FILE* fp, error_t* error)
     }
     else
     {
-        ungetc(opening_bracket_check, fp);
+        Bufungetc(info);
 
         char read[MAX_STRING_LEN] = {};
-        fscanf(fp, "%s", read);
 
-        DeleteClosingBracketFromWord(fp, read);
+        StorageScanf(info, read);
+
+        DeleteClosingBracketFromWord(info, read);
 
         if (strncmp(read, "nil", MAX_STRING_LEN))
             error->code = (int) TreeErrors::INVALID_SYNTAX;
@@ -295,26 +298,26 @@ static Node* NodesPrefixRead(FILE* fp, error_t* error)
 
 //-----------------------------------------------------------------------------------------------------
 
-static Node* ReadNewNode(FILE* fp, error_t* error)
+static Node* ReadNewNode(Storage* info, error_t* error)
 {
     Node* node = NodeCtor(0, 0, 0, error);
 
-    node_data_t data = ReadNodeData(fp, error);
+    node_data_t data = ReadNodeData(info, error);
     if (error->code != (int) TreeErrors::NONE)
         return nullptr;
 
     node->data  = data;
-    node->left  = NodesPrefixRead(fp, error);
-    node->right = NodesPrefixRead(fp, error);
+    node->left  = NodesPrefixRead(info, error);
+    node->right = NodesPrefixRead(info, error);
 
-    SkipSpaces(fp);
+    SkipSpaces(info);
 
     return node;
 }
 
 //-----------------------------------------------------------------------------------------------------
 
-node_data_t ReadNodeData(FILE* fp, error_t* error)
+node_data_t ReadNodeData(Storage* info, error_t* error)
 {
     assert(error);
 
@@ -325,7 +328,7 @@ node_data_t ReadNodeData(FILE* fp, error_t* error)
         return nullptr;
     }
 
-    ReadTextInQuotes(fp, data, error);
+    ReadTextInQuotes(info, data, error);
     if (error->code != (int) TreeErrors::NONE)
         return nullptr;
 
@@ -357,19 +360,19 @@ TreeErrors NodeVerify(const Node* node, error_t* error)
 
 //-----------------------------------------------------------------------------------------------------
 
-static TreeErrors ReadTextInQuotes(FILE* fp, char* data, error_t* error)
+static TreeErrors ReadTextInQuotes(Storage* info, char* data, error_t* error)
 {
     assert(data);
     assert(error);
 
-    CheckQuotatationMark(fp, error);
+    CheckQuotatationMark(info, error);
     RETURN_IF_TREE_ERROR((TreeErrors) error->code);
 
     bool have_closing_quote_mark = false;
 
     for (size_t i = 0; i < MAX_STRING_LEN; i++)
     {
-        char ch = getc(fp);
+        char ch = Bufgetc(info);
 
         if (ch == EOF)
             break;
@@ -395,11 +398,11 @@ static TreeErrors ReadTextInQuotes(FILE* fp, char* data, error_t* error)
 
 //-----------------------------------------------------------------------------------------------------
 
-static TreeErrors CheckQuotatationMark(FILE* fp, error_t* error)
+static TreeErrors CheckQuotatationMark(Storage* info, error_t* error)
 {
     assert(error);
 
-    char mark = getc(fp);
+    char mark = Bufgetc(info);
 
     if (mark != '"')
     {
@@ -412,7 +415,7 @@ static TreeErrors CheckQuotatationMark(FILE* fp, error_t* error)
 
 //-----------------------------------------------------------------------------------------------------
 
-static inline void DeleteClosingBracketFromWord(FILE* fp, char* read)
+static inline void DeleteClosingBracketFromWord(Storage* info, char* read)
 {
     assert(read);
 
@@ -420,7 +423,7 @@ static inline void DeleteClosingBracketFromWord(FILE* fp, char* read)
     if (read[bracket_pos] == ')')
     {
         read[bracket_pos] = '\0';
-        ungetc(')', fp);
+        Bufungetc(info);
     }
 }
 

@@ -3,21 +3,38 @@
 #include <stdarg.h>
 
 #include "input_and_output.h"
+#include "fast_input_and_output.h"
 #include "colorlib.h"
 
 static void ReadLine(FILE* fp, char* buf);
 
 //-----------------------------------------------------------------------------------------------------
 
-void SkipSpaces(FILE* fp)
+void SkipSpaces(Storage* info)
 {
-    char ch = 0;
-    ch = getc(fp);
+    int ch = 0;
+    ch = Bufgetc(info);
 
     while (isspace(ch))
-        ch = getc(fp);
+        ch = Bufgetc(info);
 
-    ungetc(ch, fp);
+    Bufungetc(info);
+}
+
+//-----------------------------------------------------------------------------------------------------
+
+int Bufgetc(Storage* info)
+{
+    int ch = info->buf[(info->ptr)++];
+
+    return ch;
+}
+
+//-----------------------------------------------------------------------------------------------------
+
+void Bufungetc(Storage* info)
+{
+    info->ptr--;
 }
 
 //------------------------------------------------------------------------------------------------------------------

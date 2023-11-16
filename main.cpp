@@ -2,6 +2,7 @@
 #include "akinator/akinator.h"
 #include "common/input_and_output.h"
 #include "common/colorlib.h"
+#include "common/fast_input_and_output.h"
 
 static const char* INPUT_FILE = "data.txt";
 
@@ -23,7 +24,12 @@ int main(const int argc, const char* argv[])
         FILE* fp = OpenInputFile(data_file, &error);
         EXIT_IF_ERROR(&error);
 
-        TreePrefixRead(fp, &tree, &error);
+        Storage info = {};
+        CreateTextStorage(&info, &error, data_file);
+
+        printf("%s\n", info.buf);
+
+        TreePrefixRead(&info, &tree, &error);
         EXIT_IF_TREE_ERROR(&error);
 
         fclose(fp);

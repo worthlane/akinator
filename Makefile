@@ -27,7 +27,7 @@ STACK_SOURCES = stack/stack.cpp stack/hash.cpp
 STACK_DIR = stack
 TREE_SOURCES = tree/tree.cpp tree/graphs.cpp
 TREE_DIR = tree
-COMMON_SOURCES = common/logs.cpp common/errors.cpp common/input_and_output.cpp
+COMMON_SOURCES = common/logs.cpp common/errors.cpp common/input_and_output.cpp common/fast_input_and_output.cpp
 COMMON_DIR = common
 OBJECTS = $(SOURCES:%.cpp=$(OBJECTS_DIR)/%.o)
 STACK_OBJECTS = $(STACK_SOURCES:$(STACK_DIR)/%.cpp=$(OBJECTS_DIR)/%.o)

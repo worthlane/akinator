@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "common/errors.h"
+#include "common/fast_input_and_output.h"
 
 typedef char* node_data_t;
 #ifdef PRINT_NODE
@@ -87,14 +88,14 @@ TreeErrors NodeVerify(const Node* node, error_t* error);
                                             return node_err_;                                       \
                                     } while(0)
 
-node_data_t ReadNodeData(FILE* fp, error_t* error);
+node_data_t ReadNodeData(Storage* info, error_t* error);
 
 TreeErrors TreeCtor(tree_t* tree, error_t* error);
 void       TreeDtor(tree_t* tree);
 void       TreePrefixPrint(FILE* fp, const tree_t* tree);
 void       TreePostfixPrint(FILE* fp, const tree_t* tree);
 void       TreeInfixPrint(FILE* fp, const tree_t* tree);
-void       TreePrefixRead(FILE* fp, tree_t* tree, error_t* error);
+void       TreePrefixRead(Storage* info, tree_t* tree, error_t* error);
 int        TreeDump(FILE* fp, const void* nodes, const char* func, const char* file, const int line);
 
 #ifdef DUMP_TREE
