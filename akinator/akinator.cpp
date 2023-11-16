@@ -43,23 +43,19 @@ AkinatorErrors GuessMode(tree_t* tree, Node* node, const char* data_file, error_
     assert(error);
 
     bool answer = false;
-    AskUserAboutNode(node, &answer, error);
-    RETURN_IF_AKINATOR_ERROR((AkinatorErrors) error->code);
 
-    if (node->left == nullptr || node->right == nullptr)
+    while (true)
     {
-        GuessingLastNodeCase(tree, node, answer, data_file, error);
-        return (AkinatorErrors) error->code;
+        AskUserAboutNode(node, &answer, error);
+        RETURN_IF_AKINATOR_ERROR((AkinatorErrors) error->code);
+
+        if (!node->left || !node->right)
+            break;
+
+        node = (answer == true)? node->left : node->right;
     }
 
-    assert(node->left);
-    assert(node->right);
-
-    if (answer == true)
-        GuessMode(tree, node->left, data_file, error);
-    else
-        GuessMode(tree, node->right, data_file, error);
-
+    GuessingLastNodeCase(tree, node, answer, data_file, error);
     RETURN_IF_AKINATOR_ERROR((AkinatorErrors) error->code);
 
     return AkinatorErrors::NONE;
@@ -159,7 +155,7 @@ static AkinatorErrors GuessingLastNodeCase(tree_t* tree, Node* node,
 
     if (answer == true)
     {
-        SayPhrase("EZ\n");
+        SayPhrase("EZ PZ LEMON SQUIZE\n");
         return AkinatorErrors::NONE;
     }
     else
