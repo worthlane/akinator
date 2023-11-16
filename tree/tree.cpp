@@ -186,12 +186,12 @@ static void NodesPrefixPrint(FILE* fp, const Node* node)
 {
     if (!node) { fprintf(fp, " %s ", NIL); return; }
 
-    fprintf(fp, "(" PRINT_NODE "\n", node->data);
+    fprintf(fp, "\n(" PRINT_NODE "\n", node->data);
 
     NodesPrefixPrint(fp, node->left);
     NodesPrefixPrint(fp, node->right);
 
-    fprintf(fp, ")\n");
+    fprintf(fp, ")");
 }
 
 //-----------------------------------------------------------------------------------------------------

@@ -17,6 +17,7 @@ static AkinatorErrors UpdateAkinatorData(tree_t* tree, Node* node, const char* d
 static AkinatorErrors SaveNewTreeInData(const tree_t* tree, const char* data_file, error_t* error);
 
 
+static char*          GetObjectInTree(const tree_t* tree, Stack_t* stk, error_t* error);
 static AkinatorErrors FindObjectInTree(Stack_t* stk, Node* node,
                                 const char* object, bool* found_flag, error_t* error);
 static AkinatorErrors CompareObjectWithLastNode(Node* node, const char* object,
@@ -187,7 +188,7 @@ static AkinatorErrors UpdateAkinatorData(tree_t* tree, Node* node, const char* d
     if (error->code != (int) ERRORS::NONE)
         return AkinatorErrors::INVALID_SYNTAX;
 
-    SayPhrase("What's difference between %s and %s?\n", guessed_object, node->data);
+    SayPhrase("What is difference between %s and %s?\n", guessed_object, node->data);
 
     node_data_t difference = GetDataFromLine(stdin, error);
     if (error->code != (int) ERRORS::NONE)
@@ -258,28 +259,20 @@ AkinatorErrors DescriptionMode(tree_t* tree, error_t* error)
     assert(tree);
     assert(error);
 
-    SayPhrase("What do you want to describe?\n", nullptr);
-
-    char* object = GetDataFromLine(stdin, error);
-    if (error->code != (int) ERRORS::NONE)
-        return AkinatorErrors::INVALID_SYNTAX;
-
     Stack_t stk = {};
     StackCtor(&stk);
 
-    bool found_flag = false;
-    FindObjectInTree(&stk, tree->root, object, &found_flag, error);
+    SayPhrase("What do you want to describe?\n", nullptr);
 
-    if (found_flag == false)
-    {
-        PrintRedText(stdout, "Can't find \"%s\" in tree\n", object);
-        StackDtor(&stk);
-        return AkinatorErrors::NONE;
-    }
-
-    SayPhrase("%s - ", object);
-    PrintObjectPropertiesBasedOnStack(&stk, 0, tree->root, error);
+    char* object = GetObjectInTree(tree, &stk, error);
     RETURN_IF_AKINATOR_ERROR((AkinatorErrors) error->code);
+
+    if (object != nullptr)
+    {
+        SayPhrase("%s - ", object);
+        PrintObjectPropertiesBasedOnStack(&stk, 0, tree->root, error);
+        RETURN_IF_AKINATOR_ERROR((AkinatorErrors) error->code);
+    }
 
     StackDtor(&stk);
     return AkinatorErrors::NONE;
@@ -382,52 +375,59 @@ static AkinatorErrors PrintObjectPropertiesBasedOnStack(const Stack_t* stk, cons
 
 //---------------------------------------------------------------------------------------
 
+static char* GetObjectInTree(const tree_t* tree, Stack_t* stk, error_t* error)
+{
+    assert(error);
+    assert(stk);
+    assert(tree);
+
+    char* object = GetDataFromLine(stdin, error);
+    if (error->code != (int) ERRORS::NONE)
+    {
+        error->code = (int) AkinatorErrors::INVALID_SYNTAX;
+        return nullptr;
+    }
+
+    bool found_flag_1 = false;
+    FindObjectInTree(stk, tree->root, object, &found_flag_1, error);
+
+    if (found_flag_1 == false)
+    {
+        PrintRedText(stdout, "Can't find \"%s\" in tree\n", object);
+        free(object);
+        return nullptr;
+    }
+
+    return object;
+}
+
+//---------------------------------------------------------------------------------------
+
 AkinatorErrors CompareMode(tree_t* tree, error_t* error)
 {
     assert(tree);
     assert(error);
-
-    SayPhrase("Input first object\n");
-
-    char* object_1 = GetDataFromLine(stdin, error);
-    if (error->code != (int) ERRORS::NONE)
-        return AkinatorErrors::INVALID_SYNTAX;
-
-    SayPhrase("Input second object\n");
-
-    char* object_2 = GetDataFromLine(stdin, error);
-    if (error->code != (int) ERRORS::NONE)
-        return AkinatorErrors::INVALID_SYNTAX;
 
     Stack_t stk_1 = {};
     Stack_t stk_2 = {};
     StackCtor(&stk_1);
     StackCtor(&stk_2);
 
-    bool found_flag_1 = false;
-    FindObjectInTree(&stk_1, tree->root, object_1, &found_flag_1, error);
+    SayPhrase("Input first object\n");
 
-    if (found_flag_1 == false)
-    {
-        PrintRedText(stdout, "Can't find \"%s\" in tree\n", object_1);
-        StackDtor(&stk_1);
-        StackDtor(&stk_2);
-        return AkinatorErrors::NONE;
-    }
-
-    bool found_flag_2 = false;
-    FindObjectInTree(&stk_2, tree->root, object_2, &found_flag_2, error);
-
-    if (found_flag_2 == false)
-    {
-        PrintRedText(stdout, "Can't find \"%s\" in tree\n", object_2);
-        StackDtor(&stk_1);
-        StackDtor(&stk_2);
-        return AkinatorErrors::NONE;
-    }
-
-    CompareObjectsDescription(&stk_1, &stk_2, object_1, object_2, tree->root, error);
+    char* object_1 = GetObjectInTree(tree, &stk_1, error);
     RETURN_IF_AKINATOR_ERROR((AkinatorErrors) error->code);
+
+    SayPhrase("Input second object\n");
+
+    char* object_2 = GetObjectInTree(tree, &stk_2, error);
+    RETURN_IF_AKINATOR_ERROR((AkinatorErrors) error->code);
+
+    if (object_1 != nullptr && object_2 != nullptr)
+    {
+        CompareObjectsDescription(&stk_1, &stk_2, object_1, object_2, tree->root, error);
+        RETURN_IF_AKINATOR_ERROR((AkinatorErrors) error->code);
+    }
 
     StackDtor(&stk_1);
     StackDtor(&stk_2);

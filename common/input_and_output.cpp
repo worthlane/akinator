@@ -55,7 +55,7 @@ bool AskUserQuestion(const char* question)
 {
     assert(question);
 
-    SayPhrase("%s (1 - Yes): ", question);
+    PrintGreenText(stdout, "%s (1 - Yes): ", question);
 
     int ans = false;
     scanf("%d", &ans);

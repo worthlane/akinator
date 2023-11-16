@@ -119,7 +119,9 @@ enum StackCondition
     /// not expected data hash (hash protect mode)
     INCORRECT_DATA_HASH  = 1 << 9,
     /// not expected stack hash (hash protect mode)
-    INCORRECT_STACK_HASH = 1 << 10
+    INCORRECT_STACK_HASH = 1 << 10,
+
+    DESTRUCTED           = 1 << 11
 };
 
 /************************************************************//**

@@ -110,7 +110,7 @@ int StackDtor(Stack_t* stk)
     stk->data     = nullptr;
     stk->size     = 0;
     stk->capacity = 0;
-    stk->status   = OK;
+    stk->status   = DESTRUCTED;
 
     ON_CANARY
     (

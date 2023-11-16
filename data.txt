@@ -1,43 +1,50 @@
+
 ("cs2 professional player"
+
 ("playing for Cloud9"
 ("Boombl4"
  nil  nil )
+
 ("major winner"
+
+("sniper"
+("device"
+ nil  nil )
 ("gla1ve"
- nil  nil )
+ nil  nil ))
+
 ("deko"
- nil  nil )
-)
-)
+ nil  nil )))
+
 ("hockey player"
+
 ("Cherepovets citizen"
+
 ("Ilya"
  nil  nil )
-("Anton"
- nil  nil )
-)
+("Anton Karpov"
+ nil  nil ))
+
 ("from Sweden"
+
 ("youtuber"
 ("PewDiePie"
  nil  nil )
 ("Laxen"
- nil  nil )
-)
+ nil  nil ))
+
 ("MIPT student"
+
 ("basket guy"
+
 ("dimatveev"
  nil  nil )
 ("Cyrill"
- nil  nil )
-)
+ nil  nil ))
+
 ("actor"
+
 ("The Rock"
  nil  nil )
 ("something unknown"
- nil  nil )
-)
-)
-)
-)
-)
-
+ nil  nil ))))))
